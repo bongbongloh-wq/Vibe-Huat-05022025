@@ -18,7 +18,7 @@ class AuspiciousCalculator extends HTMLElement {
                     border-radius: 1rem;
                     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
                     text-align: center;
-                    width: 300px;
+                    width: 700px; /* Increased width for two columns */
                 }
                 h1 {
                     color: var(--secondary-color);
@@ -33,7 +33,7 @@ class AuspiciousCalculator extends HTMLElement {
                     margin-bottom: 0.5rem;
                     font-size: 0.9rem;
                 }
-                input {
+                input, select { /* Added select for gender input */
                     width: 100%;
                     padding: 0.75rem;
                     border: 1px solid var(--primary-color);
@@ -68,16 +68,39 @@ class AuspiciousCalculator extends HTMLElement {
                 .star.full {
                     color: var(--star-full-color);
                 }
-                .results {
+                .results-container { /* New flex container for results and recommendations */
+                    display: flex;
+                    justify-content: space-between;
                     margin-top: 1.5rem;
+                }
+                .results, .recommendations { /* Styling for the two columns */
+                    width: 48%; /* Roughly half width each with some space */
                     opacity: 0;
                     transition: opacity 0.5s;
                 }
-                .results.visible {
+                .results.visible, .recommendations.visible {
                     opacity: 1;
                 }
-                .results p {
+                .results p, .recommendations p {
                     margin: 0.5rem 0;
+                }
+                .recommendations h3 {
+                    color: var(--secondary-color);
+                    margin-bottom: 1rem;
+                }
+                .recommendation-item {
+                    margin-bottom: 1rem;
+                }
+                .recommendation-item img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 0.5rem;
+                    margin-bottom: 0.5rem;
+                }
+                .recommendation-item a {
+                    color: var(--secondary-color);
+                    text-decoration: none;
+                    font-weight: bold;
                 }
             </style>
             <div class="calculator">
@@ -88,8 +111,12 @@ class AuspiciousCalculator extends HTMLElement {
                     <input type="text" id="dob" placeholder="DDMMYYYY">
                 </div>
                 <div class="input-group">
-                    <label for="tob">Time of Birth (HHMM)</label>
-                    <input type="text" id="tob" placeholder="HHMM">
+                    <label for="gender">Gender</label>
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
                 </div>
                 <button id="calculate">Calculate</button>
                 <div class="stars" id="stars">
@@ -99,10 +126,15 @@ class AuspiciousCalculator extends HTMLElement {
                     <span class="star">☆</span>
                     <span class="star">☆</span>
                 </div>
-                <div class="results" id="results">
-                    <p><strong>Zodiac:</strong> <span id="zodiac"></span></p>
-                    <p><strong>Element:</strong> <span id="element"></span></p>
-
+                <div class="results-container">
+                    <div class="results" id="results">
+                        <p><strong>Zodiac:</strong> <span id="zodiac"></span></p>
+                        <p><strong>Element:</strong> <span id="element"></span></p>
+                    </div>
+                    <div class="recommendations" id="recommendations">
+                        <h3>Dressing Style Recommendations</h3>
+                        <!-- Recommendations will be populated here -->
+                    </div>
                 </div>
             </div>
         `;
@@ -115,10 +147,10 @@ class AuspiciousCalculator extends HTMLElement {
 
     async calculateAuspiciousness() {
         const dobInput = this.shadowRoot.getElementById('dob').value;
-        const tobInput = this.shadowRoot.getElementById('tob').value;
+        const gender = this.shadowRoot.getElementById('gender').value;
 
-        if (!/^\d{8}$/.test(dobInput) || !/^\d{4}$/.test(tobInput)) {
-            alert("Please enter valid DDMMYYYY and HHMM values.");
+        if (!/^\d{8}$/.test(dobInput)) {
+            alert("Please enter a valid DDMMYYYY value.");
             return;
         }
 
@@ -130,13 +162,77 @@ class AuspiciousCalculator extends HTMLElement {
 
         const compatibilityScore = this.getCompatibilityScore(zodiac, currentZodiac);
 
-        const digits = (dobInput + tobInput).split('').map(Number);
+        const digits = dobInput.split('').map(Number);
         const sum = digits.reduce((a, b) => a + b, 0);
         const stars = ((sum + compatibilityScore) % 5) + 1;
 
-        this.displayStars(stars, zodiac, element);
+        const recommendations = this.getRecommendations(stars, gender);
 
+        this.displayResults(stars, zodiac, element, recommendations);
+    }
 
+    getRecommendations(stars, gender) {
+        const recs = [];
+        const baseQuery = "auspicious clothing style";
+        const imageBaseUrl = "https://source.unsplash.com/random/150x150/?"; // Changed to Unsplash
+
+        // Helper to get random image URL
+        const getRandomImageUrl = (seed) => `${imageBaseUrl}${encodeURIComponent(seed)},fashion,clothing`;
+
+        // Recommendation 1: Based on Auspiciousness Level
+        let auspiciousLevelText;
+        let auspiciousImageSeed;
+        if (stars >= 4) {
+            auspiciousLevelText = "Very Auspicious! Go for bold and vibrant colors.";
+            auspiciousImageSeed = "bold,vibrant,fashion";
+        } else if (stars >= 2) {
+            auspiciousLevelText = "Moderately Auspicious! Try smart casual with bright accents.";
+            auspiciousImageSeed = "smart,casual,bright";
+        } else {
+            auspiciousLevelText = "Slightly Auspicious! Keep it simple and comfortable.";
+            auspiciousImageSeed = "simple,comfortable,fashion";
+        }
+        recs.push({
+            description: auspiciousLevelText,
+            image: getRandomImageUrl(auspiciousImageSeed),
+            link: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} ${auspiciousImageSeed.replace(/,/g, ' ')} ${gender}`)}`
+        });
+
+        // Recommendation 2: Based on Element
+        const elementClothing = {
+            'Wood': { desc: "Embrace nature with earthy tones and organic fabrics.", seed: "earthy,organic,fabrics" },
+            'Fire': { desc: "Radiate energy with reds, oranges, and dynamic patterns.", seed: "red,orange,dynamic,patterns" },
+            'Earth': { desc: "Find stability in browns, yellows, and structured pieces.", seed: "brown,yellow,structured" },
+            'Metal': { desc: "Exude sophistication with whites, grays, and sleek designs.", seed: "white,gray,sleek" },
+            'Water': { desc: "Flow gracefully with blues, blacks, and fluid silhouettes.", seed: "blue,black,fluid" }
+        };
+        const selectedElement = this.getZodiac(new Date().getFullYear()).element; // Using current year's element for simplicity or can use user's element
+        recs.push({
+            description: elementClothing[selectedElement].desc,
+            image: getRandomImageUrl(elementClothing[selectedElement].seed),
+            link: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} ${elementClothing[selectedElement].seed.replace(/,/g, ' ')} ${gender}`)}`
+        });
+
+        // Recommendation 3: General Good Luck (Placeholder for more complex logic)
+        let luckyStyleText;
+        let luckyImageSeed;
+        if (gender === 'female') {
+            luckyStyleText = "A touch of elegant jewelry always brings good fortune.";
+            luckyImageSeed = "elegant,jewelry,fashion";
+        } else if (gender === 'male') {
+            luckyStyleText = "A crisp, well-fitted watch signifies prosperity.";
+            luckyImageSeed = "watch,mens,fashion";
+        } else {
+            luckyStyleText = "Harmonious accessories can uplift your day.";
+            luckyImageSeed = "harmonious,accessories,fashion";
+        }
+        recs.push({
+            description: luckyStyleText,
+            image: getRandomImageUrl(luckyImageSeed),
+            link: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} ${luckyImageSeed.replace(/,/g, ' ')} ${gender}`)}`
+        });
+
+        return recs;
     }
 
     getCompatibilityScore(zodiac1, zodiac2) {
@@ -170,7 +266,7 @@ class AuspiciousCalculator extends HTMLElement {
         };
     }
 
-    displayStars(starCount, zodiac, element) {
+    displayResults(starCount, zodiac, element, recommendations) { // Renamed from displayStars for clarity
         const starsContainer = this.shadowRoot.getElementById('stars');
         starsContainer.innerHTML = '';
         for (let i = 0; i < 5; i++) {
@@ -188,6 +284,20 @@ class AuspiciousCalculator extends HTMLElement {
         this.shadowRoot.getElementById('zodiac').textContent = zodiac;
         this.shadowRoot.getElementById('element').textContent = element;
         this.shadowRoot.getElementById('results').classList.add('visible');
+
+        const recommendationsDiv = this.shadowRoot.getElementById('recommendations');
+        recommendationsDiv.innerHTML = '<h3>Dressing Style Recommendations</h3>'; // Clear previous and add header
+        recommendations.forEach(rec => {
+            const recItem = document.createElement('div');
+            recItem.classList.add('recommendation-item');
+            recItem.innerHTML = `
+                <img src="${rec.image}" alt="${rec.description}" loading="lazy">
+                <p>${rec.description}</p>
+                <a href="${rec.link}" target="_blank">Shop Now</a>
+            `;
+            recommendationsDiv.appendChild(recItem);
+        });
+        recommendationsDiv.classList.add('visible');
     }
 }
 
@@ -226,4 +336,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
