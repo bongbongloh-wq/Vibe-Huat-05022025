@@ -1,3 +1,42 @@
+// --- Unsplash API Integration Placeholder ---
+// IMPORTANT: Replace 'YOUR_ACCESS_KEY_HERE' with your actual Unsplash Access Key.
+// You can get one by registering an app at https://unsplash.com/developers
+// Be mindful of security: for production, API keys should ideally be
+// handled server-side or via a secure proxy, not exposed directly in client-side code.
+const UNSPLASH_ACCESS_KEY = 'YOUR_ACCESS_KEY_HERE';
+
+async function fetchUnsplashImage(query, gender) {
+    if (!UNSPLASH_ACCESS_KEY || UNSPLASH_ACCESS_KEY === 'YOUR_ACCESS_KEY_HERE') {
+        console.warn("Unsplash ACCESS_KEY is not set. Using fallback image.");
+        // Fallback to source.unsplash.com if API key is missing or not set
+        const fallbackSeed = `${query},${gender}`;
+        return `https://source.unsplash.com/random/150x150/?${encodeURIComponent(fallbackSeed)}`;
+    }
+
+    // Unsplash API search endpoint
+    const searchUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&client_id=${UNSPLASH_ACCESS_KEY}`;
+
+    try {
+        const response = await fetch(searchUrl);
+        if (!response.ok) {
+            // Handle API errors (e.g., rate limiting, invalid key)
+            const errorData = await response.json();
+            console.error(`Unsplash API error: ${response.status} ${response.statusText}`, errorData);
+            throw new Error(`Unsplash API error: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (data.results && data.results.length > 0) {
+            return data.results[0].urls.small; // You can choose .raw, .full, .regular, .small, .thumb
+        }
+    } catch (error) {
+        console.error('Error fetching Unsplash image from API:', error);
+    }
+    // Fallback if API call fails or no results found
+    const fallbackSeed = `${query},${gender}`;
+    return `https://source.unsplash.com/random/150x150/?${encodeURIComponent(fallbackSeed)}`;
+}
+// --- End Unsplash API Integration Placeholder ---
+
 class AuspiciousCalculator extends HTMLElement {
     constructor() {
         super();
@@ -197,23 +236,22 @@ class AuspiciousCalculator extends HTMLElement {
         const sum = digits.reduce((a, b) => a + b, 0);
         const stars = ((sum + compatibilityScore) % 5) + 1;
 
-        const recommendations = this.getRecommendations(stars, gender);
+        const recommendations = await this.getRecommendations(stars, gender); // Await this call
 
         this.displayResults(stars, zodiac, element, recommendations);
     }
 
-    getRecommendations(stars, gender) {
+    async getRecommendations(stars, gender) { // Make this function async
         const recs = [];
-        const baseQuery = "clothing style"; // Removed 'auspicious' as it's implied and may dilute image search
-        const imageBaseUrl = "https://source.unsplash.com/random/150x150/?";
+        const baseQuery = "clothing style";
 
-        // Helper to get random image URL with gender-specific and general fashion terms
-        const getRandomImageUrl = (seed, gender) => {
+        // Helper function for building query string for Unsplash API
+        const buildUnsplashQuery = (seed, gender) => {
             let genderTerm = "";
             if (gender === "male") genderTerm = "men's";
             else if (gender === "female") genderTerm = "women's";
-            else genderTerm = "unisex"; // Fallback for 'other' or unspecified
-            return `${imageBaseUrl}${encodeURIComponent(`${seed},${genderTerm},fashion,clothing,outfit`)}`;
+            else genderTerm = "unisex";
+            return `${seed},${genderTerm},fashion,clothing,outfit`;
         };
 
         // Recommendation 1: Based on Auspiciousness Level
@@ -231,7 +269,7 @@ class AuspiciousCalculator extends HTMLElement {
         }
         recs.push({
             description: auspiciousLevelText,
-            image: getRandomImageUrl(auspiciousImageSeed, gender),
+            image: await fetchUnsplashImage(buildUnsplashQuery(auspiciousImageSeed, gender), gender),
             link: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} ${auspiciousImageSeed.replace(/,/g, ' ')} ${gender}`)}`
         });
 
@@ -246,7 +284,7 @@ class AuspiciousCalculator extends HTMLElement {
         const selectedElement = this.getZodiac(new Date().getFullYear()).element;
         recs.push({
             description: elementClothing[selectedElement].desc,
-            image: getRandomImageUrl(elementClothing[selectedElement].seed, gender),
+            image: await fetchUnsplashImage(buildUnsplashQuery(elementClothing[selectedElement].seed, gender), gender),
             link: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} ${elementClothing[selectedElement].seed.replace(/,/g, ' ')} ${gender}`)}`
         });
 
@@ -265,7 +303,7 @@ class AuspiciousCalculator extends HTMLElement {
         }
         recs.push({
             description: luckyStyleText,
-            image: getRandomImageUrl(luckyImageSeed, gender),
+            image: await fetchUnsplashImage(buildUnsplashQuery(luckyImageSeed, gender), gender),
             link: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} ${luckyImageSeed.replace(/,/g, ' ')} ${gender}`)}`
         });
 
