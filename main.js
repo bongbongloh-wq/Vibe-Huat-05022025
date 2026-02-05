@@ -156,7 +156,7 @@ class AuspiciousCalculator extends HTMLElement {
         const gender = this.shadowRoot.getElementById('gender').value;
 
         if (!/^\d{8}$/.test(dobInput)) {
-            alert("Please enter a valid DDMMYYYY value.");
+            alert("Please input a correct Date of Birth");
             return;
         }
 
@@ -173,7 +173,16 @@ class AuspiciousCalculator extends HTMLElement {
 
         // Check if the input date is in the future
         if (dobDate > currentDate) {
-            alert("Please input a logical Date of Birth.");
+            alert("You sure that's your birth date, you should be drinking milk");
+            return;
+        }
+
+        // Define minimum allowed date (01/01/1920)
+        const minDate = new Date(1920, 0, 1); // Month is 0-indexed
+
+        // Check if the input date is before the minimum allowed date
+        if (dobDate < minDate) {
+            alert("Come on! You are not that old");
             return;
         }
 

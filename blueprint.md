@@ -8,7 +8,7 @@ A simple, modern, and visually appealing single-page web application that allows
 
 ### Core Functionality
 -   **Input:** Users can enter their date of birth in `DDMMYYYY` format.
--   **Date Validation:** The input date of birth is validated to ensure it does not exceed the current date. An error message is displayed for future dates.
+-   **Date Validation:** The input date of birth is validated. If the date is after today, the error message is "You sure that's your birth date, you should be drinking milk". If the date is before 01/01/1920, the error message is "Come on! You are not that old". For invalid date format, the error message is "Please input a correct Date of Birth".
 -   **Gender Selection:** Users can select their gender (Male, Female, Other).
 -   **Calculation:** A deterministic algorithm calculates an "auspicious level" from 1 to 5 based on the provided date and time.
 -   **Output:** The result is displayed as a 1 to 5-star rating.
