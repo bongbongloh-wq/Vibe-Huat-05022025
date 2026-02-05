@@ -8,6 +8,7 @@ A simple, modern, and visually appealing single-page web application that allows
 
 ### Core Functionality
 -   **Input:** Users can enter their date of birth in `DDMMYYYY` format.
+-   **Date Validation:** The input date of birth is validated to ensure it does not exceed the current date. An error message is displayed for future dates.
 -   **Gender Selection:** Users can select their gender (Male, Female, Other).
 -   **Calculation:** A deterministic algorithm calculates an "auspicious level" from 1 to 5 based on the provided date and time.
 -   **Output:** The result is displayed as a 1 to 5-star rating.

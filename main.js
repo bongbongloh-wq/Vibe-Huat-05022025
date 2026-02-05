@@ -160,7 +160,23 @@ class AuspiciousCalculator extends HTMLElement {
             return;
         }
 
-        const year = parseInt(dobInput.substring(4), 10);
+        // Parse the input date
+        const day = parseInt(dobInput.substring(0, 2), 10);
+        const month = parseInt(dobInput.substring(2, 4), 10); // Month is 0-indexed in JavaScript Date
+        const year = parseInt(dobInput.substring(4, 8), 10);
+
+        const dobDate = new Date(year, month - 1, day); // Month - 1 because months are 0-indexed
+
+        // Get current date, set to start of day for accurate comparison
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+
+        // Check if the input date is in the future
+        if (dobDate > currentDate) {
+            alert("Please input a logical Date of Birth.");
+            return;
+        }
+
         const { zodiac, element } = this.getZodiac(year);
 
         const currentYear = new Date().getFullYear();
