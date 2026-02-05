@@ -14,11 +14,11 @@ A simple, modern, and visually appealing single-page web application that allows
 -   **Geolocation:** The user's location (city, country) is determined via their IP address and displayed.
 
 ### Visual Design
--   **Theme:** Modern, mystical, and dark theme with a cosmic background.
--   **Color Palette:** A deep blue and black background with red and yellow accents.
+-   **Theme:** Modern, mystical. Implemented a day and night mode toggle. Default is dark theme, light mode can be activated via a toggle button.
+-   **Color Palette:** A deep blue and black background with red and yellow accents for dark mode. Light mode uses a lighter palette with blues, greens, and grays.
 -   **Layout:** A centered card-based UI that is clean, intuitive, and responsive.
 -   **Typography:** System default fonts are used for a clean look.
--   **Iconography:** Star icons are used for the rating.
+-   **Iconography:** Star icons are used for the rating, and emojis are used for the theme toggle button.
 
 ### Technology
 -   **Frontend:** HTML, CSS, Vanilla JavaScript

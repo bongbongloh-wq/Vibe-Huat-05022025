@@ -192,3 +192,38 @@ class AuspiciousCalculator extends HTMLElement {
 }
 
 customElements.define('auspicious-calculator', AuspiciousCalculator);
+
+// Theme Toggling Logic
+document.addEventListener('DOMContentLoaded', () => {
+    const themeToggleBtn = document.getElementById('theme-toggle');
+    const currentTheme = localStorage.getItem('theme');
+
+    if (currentTheme) {
+        document.body.classList.add(currentTheme);
+        if (currentTheme === 'light-mode') {
+            themeToggleBtn.textContent = '☀️';
+        } else {
+            themeToggleBtn.textContent = '🌙';
+        }
+    } else {
+        // Default to dark mode if no preference is set
+        document.body.classList.add('dark-mode'); // Assuming 'dark-mode' class isn't explicitly needed if it's the default, but good for clarity.
+        themeToggleBtn.textContent = '🌙';
+    }
+
+
+    themeToggleBtn.addEventListener('click', () => {
+        if (document.body.classList.contains('light-mode')) {
+            document.body.classList.remove('light-mode');
+            document.body.classList.add('dark-mode'); // Explicitly add dark-mode for clarity
+            localStorage.setItem('theme', 'dark-mode');
+            themeToggleBtn.textContent = '🌙';
+        } else {
+            document.body.classList.remove('dark-mode'); // Remove dark-mode class
+            document.body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light-mode');
+            themeToggleBtn.textContent = '☀️';
+        }
+    });
+});
+
