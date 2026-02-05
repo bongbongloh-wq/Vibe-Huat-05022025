@@ -18,10 +18,10 @@ A simple, modern, and visually appealing single-page web application that allows
 ### Visual Design
 -   **Theme:** Modern, mystical. Implemented a day and night mode toggle. Default is dark theme, light mode can be activated via a toggle button.
 -   **Color Palette:** A deep blue and black background with red and yellow accents for dark mode. Light mode uses a lighter palette with blues, greens, and grays.
--   **Layout:** A centered card-based UI that is clean, intuitive, and responsive, with results and recommendations presented in a two-column layout.
+-   **Layout:** A centered card-based UI that is clean, intuitive, and responsive, with results displayed first, followed by recommendations in a single-column layout.
 -   **Typography:** System default fonts are used for a clean look.
 -   **Iconography:** Star icons are used for the rating, and emojis are used for the theme toggle button.
--   **Dressing Style Recommendations:** Images are sourced dynamically from Unsplash (`source.unsplash.com`) based on text prompts to visually represent the dressing styles, simulating generative AI images.
+-   **Dressing Style Recommendations:** Images are sourced dynamically from Unsplash (`source.unsplash.com`) based on text prompts to visually represent the dressing styles, simulating generative AI images. An explicit placeholder space (minimum height and width) is reserved for these images to ensure layout stability.
 
 ### Technology
 -   **Frontend:** HTML, CSS, Vanilla JavaScript
@@ -31,7 +31,7 @@ A simple, modern, and visually appealing single-page web application that allows
 ## Current Task: Advanced Features
 -   **Gender Input:** Implemented a dropdown menu for gender selection (Male, Female, Other).
 -   **Recommendation Logic:** Implemented a function to generate textual dressing recommendations and Google search links based on the auspicious level and gender.
--   **UI Updates:** Modified the web component to display the recommendations in a new column next to the results.
+-   **UI Updates:** Modified the web component to display the recommendations *after* the results in a single-column layout.
 -   **Styling:** Styled the new UI elements to match the existing theme.
 
 **Limitations:**

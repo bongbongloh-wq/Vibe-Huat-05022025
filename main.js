@@ -18,7 +18,7 @@ class AuspiciousCalculator extends HTMLElement {
                     border-radius: 1rem;
                     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
                     text-align: center;
-                    width: 700px; /* Increased width for two columns */
+                    width: 400px; /* Adjusted width for single column layout */
                 }
                 h1 {
                     color: var(--secondary-color);
@@ -33,7 +33,7 @@ class AuspiciousCalculator extends HTMLElement {
                     margin-bottom: 0.5rem;
                     font-size: 0.9rem;
                 }
-                input, select { /* Added select for gender input */
+                input, select {
                     width: 100%;
                     padding: 0.75rem;
                     border: 1px solid var(--primary-color);
@@ -68,13 +68,15 @@ class AuspiciousCalculator extends HTMLElement {
                 .star.full {
                     color: var(--star-full-color);
                 }
-                .results-container { /* New flex container for results and recommendations */
-                    display: flex;
-                    justify-content: space-between;
-                    margin-top: 1.5rem;
+                /* Removed .results-container flex styling */
+                .results {
+                    width: 100%; /* Full width */
+                    opacity: 0;
+                    transition: opacity 0.5s;
                 }
-                .results, .recommendations { /* Styling for the two columns */
-                    width: 48%; /* Roughly half width each with some space */
+                .recommendations {
+                    width: 100%; /* Full width */
+                    margin-top: 1.5rem; /* Space between results and recommendations */
                     opacity: 0;
                     transition: opacity 0.5s;
                 }
@@ -94,8 +96,14 @@ class AuspiciousCalculator extends HTMLElement {
                 .recommendation-item img {
                     max-width: 100%;
                     height: auto;
+                    min-height: 150px; /* Explicit placeholder height */
+                    min-width: 150px; /* Explicit placeholder width */
                     border-radius: 0.5rem;
                     margin-bottom: 0.5rem;
+                    background-color: var(--primary-color); /* Placeholder background */
+                    display: block; /* Ensures min-width/height apply correctly */
+                    margin-left: auto;
+                    margin-right: auto;
                 }
                 .recommendation-item a {
                     color: var(--secondary-color);
@@ -126,15 +134,13 @@ class AuspiciousCalculator extends HTMLElement {
                     <span class="star">☆</span>
                     <span class="star">☆</span>
                 </div>
-                <div class="results-container">
-                    <div class="results" id="results">
-                        <p><strong>Zodiac:</strong> <span id="zodiac"></span></p>
-                        <p><strong>Element:</strong> <span id="element"></span></p>
-                    </div>
-                    <div class="recommendations" id="recommendations">
-                        <h3>Dressing Style Recommendations</h3>
-                        <!-- Recommendations will be populated here -->
-                    </div>
+                <div class="results" id="results">
+                    <p><strong>Zodiac:</strong> <span id="zodiac"></span></p>
+                    <p><strong>Element:</strong> <span id="element"></span></p>
+                </div>
+                <div class="recommendations" id="recommendations">
+                    <h3>Dressing Style Recommendations</h3>
+                    <!-- Recommendations will be populated here -->
                 </div>
             </div>
         `;
@@ -173,43 +179,49 @@ class AuspiciousCalculator extends HTMLElement {
 
     getRecommendations(stars, gender) {
         const recs = [];
-        const baseQuery = "auspicious clothing style";
-        const imageBaseUrl = "https://source.unsplash.com/random/150x150/?"; // Changed to Unsplash
+        const baseQuery = "clothing style"; // Removed 'auspicious' as it's implied and may dilute image search
+        const imageBaseUrl = "https://source.unsplash.com/random/150x150/?";
 
-        // Helper to get random image URL
-        const getRandomImageUrl = (seed) => `${imageBaseUrl}${encodeURIComponent(seed)},fashion,clothing`;
+        // Helper to get random image URL with gender-specific and general fashion terms
+        const getRandomImageUrl = (seed, gender) => {
+            let genderTerm = "";
+            if (gender === "male") genderTerm = "men's";
+            else if (gender === "female") genderTerm = "women's";
+            else genderTerm = "unisex"; // Fallback for 'other' or unspecified
+            return `${imageBaseUrl}${encodeURIComponent(`${seed},${genderTerm},fashion,clothing,outfit`)}`;
+        };
 
         // Recommendation 1: Based on Auspiciousness Level
         let auspiciousLevelText;
         let auspiciousImageSeed;
         if (stars >= 4) {
             auspiciousLevelText = "Very Auspicious! Go for bold and vibrant colors.";
-            auspiciousImageSeed = "bold,vibrant,fashion";
+            auspiciousImageSeed = "bold,vibrant,colorful";
         } else if (stars >= 2) {
             auspiciousLevelText = "Moderately Auspicious! Try smart casual with bright accents.";
-            auspiciousImageSeed = "smart,casual,bright";
+            auspiciousImageSeed = "smart,casual,bright,elegant";
         } else {
             auspiciousLevelText = "Slightly Auspicious! Keep it simple and comfortable.";
-            auspiciousImageSeed = "simple,comfortable,fashion";
+            auspiciousImageSeed = "simple,comfortable,minimalist";
         }
         recs.push({
             description: auspiciousLevelText,
-            image: getRandomImageUrl(auspiciousImageSeed),
+            image: getRandomImageUrl(auspiciousImageSeed, gender),
             link: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} ${auspiciousImageSeed.replace(/,/g, ' ')} ${gender}`)}`
         });
 
         // Recommendation 2: Based on Element
         const elementClothing = {
-            'Wood': { desc: "Embrace nature with earthy tones and organic fabrics.", seed: "earthy,organic,fabrics" },
-            'Fire': { desc: "Radiate energy with reds, oranges, and dynamic patterns.", seed: "red,orange,dynamic,patterns" },
-            'Earth': { desc: "Find stability in browns, yellows, and structured pieces.", seed: "brown,yellow,structured" },
-            'Metal': { desc: "Exude sophistication with whites, grays, and sleek designs.", seed: "white,gray,sleek" },
-            'Water': { desc: "Flow gracefully with blues, blacks, and fluid silhouettes.", seed: "blue,black,fluid" }
+            'Wood': { desc: "Embrace nature with earthy tones and organic fabrics.", seed: "earthy,organic,fabrics,nature" },
+            'Fire': { desc: "Radiate energy with reds, oranges, and dynamic patterns.", seed: "red,orange,dynamic,patterns,energetic" },
+            'Earth': { desc: "Find stability in browns, yellows, and structured pieces.", seed: "brown,yellow,structured,stable" },
+            'Metal': { desc: "Exude sophistication with whites, grays, and sleek designs.", seed: "white,gray,sleek,sophisticated" },
+            'Water': { desc: "Flow gracefully with blues, blacks, and fluid silhouettes.", seed: "blue,black,fluid,graceful" }
         };
-        const selectedElement = this.getZodiac(new Date().getFullYear()).element; // Using current year's element for simplicity or can use user's element
+        const selectedElement = this.getZodiac(new Date().getFullYear()).element;
         recs.push({
             description: elementClothing[selectedElement].desc,
-            image: getRandomImageUrl(elementClothing[selectedElement].seed),
+            image: getRandomImageUrl(elementClothing[selectedElement].seed, gender),
             link: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} ${elementClothing[selectedElement].seed.replace(/,/g, ' ')} ${gender}`)}`
         });
 
@@ -218,17 +230,17 @@ class AuspiciousCalculator extends HTMLElement {
         let luckyImageSeed;
         if (gender === 'female') {
             luckyStyleText = "A touch of elegant jewelry always brings good fortune.";
-            luckyImageSeed = "elegant,jewelry,fashion";
+            luckyImageSeed = "elegant,jewelry,accessories,lucky";
         } else if (gender === 'male') {
             luckyStyleText = "A crisp, well-fitted watch signifies prosperity.";
-            luckyImageSeed = "watch,mens,fashion";
+            luckyImageSeed = "watch,mens,accessories,prosperity";
         } else {
             luckyStyleText = "Harmonious accessories can uplift your day.";
-            luckyImageSeed = "harmonious,accessories,fashion";
+            luckyImageSeed = "harmonious,accessories,uplifting";
         }
         recs.push({
             description: luckyStyleText,
-            image: getRandomImageUrl(luckyImageSeed),
+            image: getRandomImageUrl(luckyImageSeed, gender),
             link: `https://www.google.com/search?q=${encodeURIComponent(`${baseQuery} ${luckyImageSeed.replace(/,/g, ' ')} ${gender}`)}`
         });
 
