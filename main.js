@@ -81,7 +81,8 @@ class AuspiciousCalculator extends HTMLElement {
                 }
             </style>
             <div class="calculator">
-                <h1>Vibe Huat</h1>
+                <h1>Huat Your Day Through</h1>
+                <p>This is your auspicious level for TODAY</p>
                 <div class="input-group">
                     <label for="dob">Date of Birth (DDMMYYYY)</label>
                     <input type="text" id="dob" placeholder="DDMMYYYY">
@@ -101,7 +102,7 @@ class AuspiciousCalculator extends HTMLElement {
                 <div class="results" id="results">
                     <p><strong>Zodiac:</strong> <span id="zodiac"></span></p>
                     <p><strong>Element:</strong> <span id="element"></span></p>
-                    <p><strong>Location:</strong> <span id="location"></span></p>
+
                 </div>
             </div>
         `;
@@ -135,15 +136,7 @@ class AuspiciousCalculator extends HTMLElement {
 
         this.displayStars(stars, zodiac, element);
 
-        try {
-            const response = await fetch('http://ip-api.com/json/');
-            const data = await response.json();
-            const location = `${data.city}, ${data.country}`;
-            this.shadowRoot.getElementById('location').textContent = location;
-        } catch (error) {
-            console.error('Error fetching location:', error);
-            this.shadowRoot.getElementById('location').textContent = 'Location not found';
-        }
+
     }
 
     getCompatibilityScore(zodiac1, zodiac2) {
